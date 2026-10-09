@@ -1,0 +1,84 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: aookho-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-aookho}
+      POSTGRES_USER: ${POSTGRES_USER:-aookho_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_this_postgres_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - aookho-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aookho_user} -d ${POSTGRES_DB:-aookho}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    # Security: Database is NOT exposed to external host network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: aookho-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-aookho_user}:${POSTGRES_PASSWORD:-change_this_postgres_password}@postgres:5432/${POSTGRES_DB:-aookho}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?JWT_SECRET_KEY must be provided}
+      STORAGE_PROVIDER: ${STORAGE_PROVIDER:-s3}
+      S3_ENDPOINT_URL: ${S3_ENDPOINT_URL:-}
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME:-aookho-uploads}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      CORS_ORIGINS: '["${FRONTEND_URL:-http://localhost:3000}"]'
+    ports:
+      - "8000:8000"
+    networks:
+      - aookho-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8000}
+    container_name: aookho-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8000}
+    ports:
+      - "3000:3000"
+    networks:
+      - aookho-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  aookho-net:
+    driver: bridge
