@@ -13,29 +13,37 @@ export function Navbar() {
       <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand: Favicon and Name in the Corner */}
         <Link href="/" className="flex items-center gap-2.5 group">
-          {/* Favicon / Artistic Eye Icon */}
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500/20 via-rose-500/20 to-amber-500/20 border border-white/10 flex items-center justify-center group-hover:border-white/25 transition-all shadow-sm">
+          {/* Favicon / Cyber Forensic Eye Icon */}
+          <div className="w-9 h-9 rounded-xl bg-[#0f172a] border border-cyan-500/40 flex items-center justify-center group-hover:border-cyan-400/80 transition-all shadow-[0_0_12px_rgba(6,182,212,0.15)] group-hover:shadow-[0_0_16px_rgba(6,182,212,0.3)]">
             <svg className="w-5 h-5" viewBox="0 0 32 32" fill="none">
+              {/* Eye contour */}
               <path
-                d="M4 16C7 9.5 11 6.5 16 6.5C21 6.5 25 9.5 28 16C25 22.5 21 25.5 16 25.5C11 25.5 7 22.5 4 16Z"
+                d="M5 16C8 9.5 12 7 16 7C20 7 24 9.5 27 16C24 22.5 20 25 16 25C12 25 8 22.5 5 16Z"
                 stroke="url(#navEyeStroke)"
-                strokeWidth="2"
+                strokeWidth="1.8"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
-              <circle cx="16" cy="16" r="5.5" fill="url(#navIrisGrad)" />
-              <circle cx="16" cy="16" r="2.8" fill="#090d16" />
-              <circle cx="17.5" cy="14.5" r="1.1" fill="#ffffff" />
+              {/* Iris & Reticle */}
+              <circle cx="16" cy="16" r="5.2" fill="url(#navIrisGrad)" stroke="#38bdf8" strokeWidth="0.8" />
+              <circle cx="16" cy="16" r="3.2" stroke="#a5f3fc" strokeWidth="0.6" strokeDasharray="2 1.5" />
+              <circle cx="16" cy="16" r="1.8" fill="#020617" />
+              {/* Specular reflections */}
+              <circle cx="17.6" cy="14.2" r="0.9" fill="#ffffff" />
+              <circle cx="14.8" cy="17.5" r="0.5" fill="#a5f3fc" />
+              {/* Forensic axes */}
+              <line x1="2.5" y1="16" x2="5" y2="16" stroke="#00f2fe" strokeWidth="1.2" strokeLinecap="round" />
+              <line x1="27" y1="16" x2="29.5" y2="16" stroke="#ec4899" strokeWidth="1.2" strokeLinecap="round" />
               <defs>
-                <linearGradient id="navEyeStroke" x1="4" y1="16" x2="28" y2="16" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="#f97316" />
-                  <stop offset="0.5" stopColor="#ec4899" />
-                  <stop offset="1" stopColor="#6366f1" />
+                <linearGradient id="navEyeStroke" x1="5" y1="16" x2="27" y2="16" gradientUnits="userSpaceOnUse">
+                  <stop stopColor="#00f2fe" />
+                  <stop offset="0.5" stopColor="#6366f1" />
+                  <stop offset="1" stopColor="#ec4899" />
                 </linearGradient>
                 <linearGradient id="navIrisGrad" x1="11" y1="11" x2="21" y2="21" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="#fbbf24" />
-                  <stop offset="0.4" stopColor="#f43f5e" />
-                  <stop offset="1" stopColor="#6366f1" />
+                  <stop stopColor="#38bdf8" />
+                  <stop offset="0.5" stopColor="#6366f1" />
+                  <stop offset="1" stopColor="#1e1b4b" />
                 </linearGradient>
               </defs>
             </svg>
