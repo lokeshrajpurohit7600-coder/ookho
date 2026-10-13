@@ -1,6 +1,19 @@
 import { UploadResponse, DetectionReport, HistoryResponse } from './types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '';
+export function getApiBaseUrl(): string {
+  if (process.env.NEXT_PUBLIC_API_BASE_URL) {
+    return process.env.NEXT_PUBLIC_API_BASE_URL;
+  }
+  // When running locally in browser on port 3000, route to local FastAPI backend on port 8000
+  if (typeof window !== 'undefined') {
+    const { hostname, port } = window.location;
+    if ((hostname === 'localhost' || hostname === '127.0.0.1') && port === '3000') {
+      return 'http://localhost:8000';
+    }
+  }
+  // In production / Vercel, keep URLs relative on the same domain
+  return '';
+}
 
 function getSessionHeaders(): Record<string, string> {
   const headers: Record<string, string> = {};
@@ -41,7 +54,7 @@ export async function uploadMediaFile(file: File): Promise<UploadResponse> {
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await fetch(`${API_BASE_URL}/api/uploads`, {
+  const response = await fetch(`${getApiBaseUrl()}/api/uploads`, {
     method: 'POST',
     headers: getSessionHeaders(),
     body: formData,
@@ -63,7 +76,7 @@ export async function uploadTextSnippet(text: string): Promise<UploadResponse> {
   const formData = new FormData();
   formData.append('text_content', text);
 
-  const response = await fetch(`${API_BASE_URL}/api/uploads`, {
+  const response = await fetch(`${getApiBaseUrl()}/api/uploads`, {
     method: 'POST',
     headers: getSessionHeaders(),
     body: formData,
@@ -82,7 +95,7 @@ export async function uploadTextSnippet(text: string): Promise<UploadResponse> {
 }
 
 export async function getReport(uploadId: string): Promise<DetectionReport> {
-  const response = await fetch(`${API_BASE_URL}/api/reports/${uploadId}`, {
+  const response = await fetch(`${getApiBaseUrl()}/api/reports/${uploadId}`, {
     method: 'GET',
     headers: {
       'Accept': 'application/json',
@@ -100,7 +113,7 @@ export async function getReport(uploadId: string): Promise<DetectionReport> {
 }
 
 export async function getSearchHistory(limit: number = 10, offset: number = 0): Promise<HistoryResponse> {
-  const response = await fetch(`${API_BASE_URL}/api/history?limit=${limit}&offset=${offset}`, {
+  const response = await fetch(`${getApiBaseUrl()}/api/history?limit=${limit}&offset=${offset}`, {
     method: 'GET',
     headers: {
       'Accept': 'application/json',
@@ -118,7 +131,7 @@ export async function getSearchHistory(limit: number = 10, offset: number = 0): 
 }
 
 export async function deleteUpload(uploadId: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/api/uploads/${uploadId}`, {
+  const response = await fetch(`${getApiBaseUrl()}/api/uploads/${uploadId}`, {
     method: 'DELETE',
     headers: getSessionHeaders(),
   });
@@ -134,7 +147,7 @@ export async function sendChatMessage(
   message: string, 
   language: string = 'english'
 ): Promise<{ reply: string; session_id: string; transcript: any[] }> {
-  const response = await fetch(`${API_BASE_URL}/api/assistant/chat`, {
+  const response = await fetch(`${getApiBaseUrl()}/api/assistant/chat`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

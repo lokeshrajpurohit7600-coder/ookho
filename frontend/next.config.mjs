@@ -1,7 +1,9 @@
+const isProd = process.env.NODE_ENV === 'production';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  output: 'export',
+  output: isProd ? 'export' : undefined,
   images: {
     unoptimized: true,
     remotePatterns: [
@@ -23,6 +25,18 @@ const nextConfig = {
       },
     ],
   },
+  ...(!isProd
+    ? {
+        async rewrites() {
+          return [
+            {
+              source: '/api/:path*',
+              destination: 'http://localhost:8000/api/:path*',
+            },
+          ];
+        },
+      }
+    : {}),
 };
 
 export default nextConfig;
