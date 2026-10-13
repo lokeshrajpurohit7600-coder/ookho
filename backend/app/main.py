@@ -32,6 +32,9 @@ app = FastAPI(
     title=settings.PROJECT_NAME,
     description="AI-Generated and Deepfake Content Detection Platform API",
     version="2.0.0",
+    docs_url="/api/docs",
+    redoc_url="/api/redoc",
+    openapi_url="/api/openapi.json",
     lifespan=lifespan
 )
 
@@ -199,11 +202,23 @@ def readiness_probe():
         }
     )
 
+@app.get("/docs", include_in_schema=False)
+def docs_redirect():
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url="/api/docs")
+
+@app.get("/openapi.json", include_in_schema=False)
+def openapi_redirect():
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url="/api/openapi.json")
+
 @app.get("/")
+@app.get("/api")
+@app.get("/api/")
 def root():
     return {
         "message": "Welcome to Aookho Deepfake & AI Detection API",
-        "docs": "/docs",
-        "health": "/health",
-        "ready": "/ready"
+        "docs": "/api/docs",
+        "health": "/api/health",
+        "ready": "/api/ready"
     }
