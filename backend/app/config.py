@@ -14,7 +14,11 @@ class Settings(BaseSettings):
     ENVIRONMENT: Literal["development", "testing", "production"] = os.getenv("ENVIRONMENT", "development") # type: ignore
     
     # Database Settings
-    DATABASE_URL: str = os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR / 'aookho.db'}")
+    DATABASE_URL: str = (
+        "sqlite:////tmp/aookho.db"
+        if os.getenv("VERCEL") and (not os.getenv("DATABASE_URL") or os.getenv("DATABASE_URL", "").startswith("sqlite:///"))
+        else os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR / 'aookho.db'}")
+    )
     
     # Authentication & Security
     JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY", "dev-secret-key-change-in-production-aookho-2026")
@@ -24,7 +28,7 @@ class Settings(BaseSettings):
     
     # Storage Configuration (Explicit provider required)
     STORAGE_PROVIDER: Literal["local", "s3", "r2", "minio"] = os.getenv("STORAGE_PROVIDER", "local") # type: ignore
-    STORAGE_DIR: Path = BASE_DIR / "storage" / "uploads"
+    STORAGE_DIR: Path = Path("/tmp/storage") if os.getenv("VERCEL") else BASE_DIR / "storage" / "uploads"
     BASE_URL: str = os.getenv("BASE_URL", "http://localhost:8000")
     
     # S3 / MinIO / Cloudflare R2 Credentials
